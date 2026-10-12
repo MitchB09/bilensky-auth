@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: home-page
+
+Parameters:
+  CertificateId:
+    Type: String
+    Description: AWS Certificate ID
+  Stage:
+    Type: String
+    Description: The Stage where the application is running in, e.g., dev, prod.
+
+Conditions:
+  IsProduction: 
+    !Equals [!Ref Stage, "prod"]
+
+Globals:
+  Function:
+    Timeout: 5
+    Handler: index.handler
+    Runtime: nodejs22.x
+    Environment:
+      Variables:
+        ENTITY_TABLE: !Ref EntityTable
+
+
+Resources:
+
+  # GithubPipeline:
+  #   Type: AWS::IAM::Role
+  #   Metadata:
+  #     com.aws.cloudformation.Context: 
+  #       why: "Role fo Github actions"
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #         Version: "2012-10-17"
+  #         Statement:
+  #           - Effect: Allow
+  #             Principal:
+  #               Federated:
+  #                 - !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com'
+  #             Action:
+  #               - 'sts:AssumeRoleWithWebIdentity'
+  #             Condition:
+  #               StringLike:
+  #                   token.actions.githubusercontent.com:sub: "repo:MitchB09/bilensky-auth:*"
+  #                   token.actions.githubusercontent.com:aud: "sts.amazonaws.com"
+  #     ManagedPolicyArns:
+  #       - !Sub "arn:aws:iam::${AWS::AccountId}:policy/GithubActions_Crosswords"
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Metadata:
+      com.aws.cloudformation.Context: 
+        why: "Userpool for all shared apps"
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      UserPoolName: !Sub '${AWS::StackName}-${Stage}-user-pool'
+      UsernameConfiguration:
+        CaseSensitive: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: True
+          RequireNumbers: False
+          RequireSymbols: True
+          RequireUppercase: True
+
+  UserPoolDomain:
+    Metadata:
+      com.aws.cloudformation.Context: 
+        why: "Configuring custom domain for userpool"
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: !If [IsProduction, !Sub 'auth.bilensky.ca', !Sub 'auth-${Stage}.bilensky.ca' ]
+      UserPoolId: !Ref UserPool
+      ManagedLoginVersion: 2
+      CustomDomainConfig:
+        CertificateArn: !Sub arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/${CertificateId}
+
+Outputs:
+  # GitHubActionRoleArm:
+  #   Description: GitHub Action Role
+  #   Value: !GetAtt GithubPipeline.Arn
+  UserPoolDomain:
+    Value: !Ref UserPoolDomain
