@@ -31,16 +31,12 @@ jobs:
     - uses: aws-actions/setup-sam@v3
       with:
         use-installer: true
-
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v6.1.0
-      with:
-        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-        aws-region: us-east-1
+      env:
+        AWS_DEFAULT_REGION: 'us-east-1'
 
     - name: Validate
       run: sam validate
 
-    - name: Validate
+    - name: Build
       # Build inside Docker containers
       run: sam build --use-container
