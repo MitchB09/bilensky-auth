@@ -83,5 +83,19 @@ Outputs:
   # GitHubActionRoleArm:
   #   Description: GitHub Action Role
   #   Value: !GetAtt GithubPipeline.Arn
+  UserPoolId:
+    Value: !Ref UserPool
+    Export: 
+      Name: !Sub "${AWS::StackName}-UserPoolId"
+    Description: "Userpool ID of Bilensky Auth"
+  UserPoolArn:
+    Value: !GetAtt UserPool.Arn
+    Export: 
+      Name: !Sub "${AWS::StackName}-UserPoolArn"
+    Description: "Userpool Arn of Bilensky Auth"
   UserPoolDomain:
     Value: !Ref UserPoolDomain
+    Export: 
+      Name: !Sub "${AWS::StackName}-UserPoolDomain"
+    Description: "Userpool Domain of Bilensky Auth"
+
