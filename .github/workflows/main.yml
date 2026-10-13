@@ -19,7 +19,7 @@ permissions:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build-and-deploy:
-    name: Build and Deploy
+    name: Validate and Build
     runs-on: ubuntu-latest
     environment: main
     steps:

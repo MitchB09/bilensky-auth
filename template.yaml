@@ -26,28 +26,6 @@ Globals:
 
 Resources:
 
-  # GithubPipeline:
-  #   Type: AWS::IAM::Role
-  #   Metadata:
-  #     com.aws.cloudformation.Context: 
-  #       why: "Role fo Github actions"
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #         Version: "2012-10-17"
-  #         Statement:
-  #           - Effect: Allow
-  #             Principal:
-  #               Federated:
-  #                 - !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com'
-  #             Action:
-  #               - 'sts:AssumeRoleWithWebIdentity'
-  #             Condition:
-  #               StringLike:
-  #                   token.actions.githubusercontent.com:sub: "repo:MitchB09/bilensky-auth:*"
-  #                   token.actions.githubusercontent.com:aud: "sts.amazonaws.com"
-  #     ManagedPolicyArns:
-  #       - !Sub "arn:aws:iam::${AWS::AccountId}:policy/GithubActions_Crosswords"
-
   UserPool:
     Type: AWS::Cognito::UserPool
     Metadata:
@@ -80,9 +58,6 @@ Resources:
         CertificateArn: !Sub arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/${CertificateId}
 
 Outputs:
-  # GitHubActionRoleArm:
-  #   Description: GitHub Action Role
-  #   Value: !GetAtt GithubPipeline.Arn
   UserPoolId:
     Value: !Ref UserPool
     Export: 
